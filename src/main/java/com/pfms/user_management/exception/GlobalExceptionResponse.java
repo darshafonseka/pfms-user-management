@@ -20,7 +20,7 @@ import java.util.List;
 public class GlobalExceptionResponse {
 
     private String errorType;
-    private List<ValidationException> validationException;
+    private List<ValidationError> validationErrors;
     private ApplicationException applicationException;
     private String errorLog;
     private String severity;
@@ -31,7 +31,7 @@ public class GlobalExceptionResponse {
     public String toString() {
         return "GlobalExceptionResponse{" +
                 "errorType='" + errorType + '\'' +
-                ", validationException=" + validationException +
+                ", validationException=" + validationErrors +
                 ", applicationException=" + applicationException +
                 ", errorLog='" + errorLog + '\'' +
                 ", severity='" + severity + '\'' +

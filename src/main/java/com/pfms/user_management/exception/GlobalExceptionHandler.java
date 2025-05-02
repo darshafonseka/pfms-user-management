@@ -23,15 +23,15 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<UserManagementApiResponse<GlobalExceptionResponse>> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception){
 
-        List<ValidationException> details = new ArrayList<>();
+        List<ValidationError> details = new ArrayList<>();
 
         for(FieldError fieldError : exception.getBindingResult().getFieldErrors()){
-            details.add(new ValidationException(fieldError.getField(), fieldError.getDefaultMessage()));
+            details.add(new ValidationError(fieldError.getField(), fieldError.getDefaultMessage()));
         }
 
         GlobalExceptionResponse response = new GlobalExceptionResponse();
         response.setErrorType(ErrorType.VALIDATION_ERROR.name());
-        response.setValidationException(details);
+        response.setValidationErrors(details);
         response.setSeverity(Severity.LOW.name());
 
         return ResponseUtil.badRequest(response);
@@ -51,7 +51,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<UserManagementApiResponse<GlobalExceptionResponse>> handleHttpMessageNotReadable(HttpMessageNotReadableException exception) {
-        List<ValidationException> details = new ArrayList<>();
+        List<ValidationError> details = new ArrayList<>();
 
         Throwable rootCause = exception.getRootCause();
         String errorMessage = "Invalid input data";
@@ -60,11 +60,11 @@ public class GlobalExceptionHandler {
             errorMessage = rootCause.getMessage();
         }
 
-        details.add(new ValidationException("input", errorMessage));
+        details.add(new ValidationError("input", errorMessage));
 
         GlobalExceptionResponse response = new GlobalExceptionResponse();
         response.setErrorType(ErrorType.VALIDATION_ERROR.name());
-        response.setValidationException(details);
+        response.setValidationErrors(details);
         response.setSeverity(Severity.LOW.name());
 
         return ResponseUtil.badRequest(response);

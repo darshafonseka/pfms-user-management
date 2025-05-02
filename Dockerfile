@@ -2,7 +2,7 @@
 FROM openjdk:21-jdk-slim
 
 #information around who maintain the image
-MAINTAINER pfms
+LABEL maintainer="pfms"
 
 #Add the application's jar to the container
 COPY target/user-management-0.0.1-SNAPSHOT.jar user-management-0.0.1-SNAPSHOT.jar

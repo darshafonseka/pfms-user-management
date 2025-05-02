@@ -7,7 +7,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,11 +21,9 @@ import java.util.List;
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private JwtService jwtService;
+    private final JwtService jwtService;
 
-    @Autowired
-    private PFMSUserDetailsService pfmsUserDetailsService;
+    private final PFMSUserDetailsService pfmsUserDetailsService;
 
     public JwtFilter(JwtService jwtService, PFMSUserDetailsService pfmsUserDetailsService) {
         this.jwtService = jwtService;
@@ -42,7 +39,8 @@ public class JwtFilter extends OncePerRequestFilter {
         if(authHeader!=null && authHeader.startsWith("Bearer ")){
             token=authHeader.substring(7);
             username=jwtService.extractUsername(token);
-        }if(username!=null && SecurityContextHolder.getContext().getAuthentication()==null){
+        }
+        if(username!=null && SecurityContextHolder.getContext().getAuthentication()==null){
             UserDetails userDetails = pfmsUserDetailsService.loadUserByUsername(username);
             if (jwtService.validateToken(token, userDetails)) {
                 String role = jwtService.extractClaim(token, claims -> claims.get("role").toString());

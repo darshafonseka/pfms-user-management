@@ -10,7 +10,6 @@ import com.pfms.user_management.service.AdminService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class AdminServiceImpl implements AdminService {
@@ -35,13 +34,17 @@ public class AdminServiceImpl implements AdminService {
             userDetailsResponse.setRole(user.getRole().name());
             userDetailsResponse.setStatus(user.getStatus().name());
             return userDetailsResponse;
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     @Override
     public UserDetailsResponse updateUserStatus(UpdateUserStatusRequest updateUserStatusRequest) {
         User user = pfmsUserRepo.findById(Long.valueOf(updateUserStatusRequest.getUserId()))
                 .orElseThrow(() -> new ApplicationException(UserManagementError.USER_NOT_FOUND)); // Throw ApplicationException if user not found
+
+        if (user.getStatus().name().equals(updateUserStatusRequest.getStatus())) {
+            throw new ApplicationException(UserManagementError.USER_STATUS_ALREADY_UPDATED);
+        }
 
         user.setStatus(User.Status.valueOf(updateUserStatusRequest.getStatus()));
         pfmsUserRepo.save(user);

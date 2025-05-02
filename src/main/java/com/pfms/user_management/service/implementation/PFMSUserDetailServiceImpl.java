@@ -20,8 +20,8 @@ public class PFMSUserDetailServiceImpl implements PFMSUserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username ) throws ApplicationException {
-        User user = pfmsUserRepo.findByUsername(username);
+    public UserDetails loadUserByUsername(String email ) throws ApplicationException {
+        User user = pfmsUserRepo.findByEmail(email);
         if (user == null) {
             throw new ApplicationException(UserManagementError.USER_NOT_FOUND);
         }

@@ -40,7 +40,7 @@ public class ResponseUtil {
         return ResponseEntity.noContent().build();
     }
 
-    public static <T> ResponseEntity<UserManagementApiResponse<T>> internalServerError() {
+    public static <T> ResponseEntity<UserManagementApiResponse<T>> internalServerError(String s) {
         UserManagementApiResponse<T> response = new UserManagementApiResponse<>();
         response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         response.setCode("999");

@@ -3,7 +3,7 @@ package com.pfms.user_management.controller;
 import com.pfms.user_management.constants.AuthConstants;
 import com.pfms.user_management.exception.GlobalExceptionResponse;
 import com.pfms.user_management.model.*;
-import com.pfms.user_management.entity.User;
+import com.pfms.user_management.request.PasswordResetRequest;
 import com.pfms.user_management.request.UpdateUserProfileRequest;
 import com.pfms.user_management.request.UserLoginRequest;
 import com.pfms.user_management.request.UserRegisterRequest;
@@ -14,17 +14,14 @@ import com.pfms.user_management.util.ResponseUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.responses.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 
 @Tag(
         name = "PFMS User"
@@ -32,34 +29,33 @@ import org.springframework.security.core.Authentication;
 @RestController
 @RequestMapping(value = "/api/user", produces = {MediaType.APPLICATION_JSON_VALUE})
 public class UserController {
-    @Autowired
-    private UserService userRegisterService;
 
-    @Autowired
-    AuthenticationManager authenticationManager;
+    private final UserService userService;
 
-    @Autowired
-    private JwtService jwtService;
+    private final JwtService jwtService;
+
+    public UserController(UserService userService, JwtService jwtService) {
+        this.userService = userService;
+        this.jwtService = jwtService;
+    }
 
     @Operation(summary = "Register User")
     @ApiResponse(
             responseCode = "201",
             description = "Account created successfully"
     )
-    @ApiResponses(
-            {
-                    @ApiResponse(
-                            responseCode = "409",
-                            description = "User already exists",
-                            content = @Content(
-                                    schema = @Schema(implementation = GlobalExceptionResponse.class)
-                            )
-                    )
-            }
+
+    @ApiResponse(
+            responseCode = "409",
+            description = "User already exists",
+            content = @Content(
+                    schema = @Schema(implementation = GlobalExceptionResponse.class)
+            )
     )
+
     @PostMapping("/register")
-    public ResponseEntity<UserManagementApiResponse<UserDetailsResponse>> register(@RequestBody UserRegisterRequest registerRequestDto) {
-        UserDetailsResponse userDetailsResponse = userRegisterService.registerUser(registerRequestDto);
+    public ResponseEntity<UserManagementApiResponse<UserDetailsResponse>> register(@Valid @RequestBody UserRegisterRequest registerRequestDto) {
+        UserDetailsResponse userDetailsResponse = userService.registerUser(registerRequestDto);
         return ResponseUtil.ok(userDetailsResponse);
     }
 
@@ -80,17 +76,11 @@ public class UserController {
             }
     )
     @PostMapping("/login")
-    public ResponseEntity<UserManagementApiResponse<String>> login(@RequestBody UserLoginRequest loginRequestDto) {
-        User userDetails = userRegisterService.getUserDetailsByEmail(loginRequestDto.getEmail());
-
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userDetails.getUsername(), loginRequestDto.getPassword()));
-        if (authentication.isAuthenticated()) {
-            String token = jwtService.generateToken(userDetails.getUsername(), String.valueOf(userDetails.getRole()));
-            return ResponseUtil.ok(token);
-        } else {
-            return ResponseUtil.badRequest(AuthConstants.INVALID_CREDENTIALS);
-        }
+    public ResponseEntity<UserManagementApiResponse<String>> login(@Valid @RequestBody UserLoginRequest loginRequest) {
+        String token = userService.loginUser(loginRequest);
+        return ResponseUtil.ok(token);
     }
+
 
     @GetMapping("/validate")
     @Operation(summary = "Validate Token")
@@ -102,9 +92,22 @@ public class UserController {
     @PutMapping("/profile")
     @Operation(summary = "Update User Profile")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<UserManagementApiResponse<UserDetailsResponse>> updateProfile(@RequestBody UpdateUserProfileRequest updateProfileRequestDto) {
-        UserDetailsResponse userDetailsResponse = userRegisterService.updateProfile(updateProfileRequestDto);
+    public ResponseEntity<UserManagementApiResponse<UserDetailsResponse>> updateProfile(@Valid @RequestBody UpdateUserProfileRequest updateProfileRequest) {
+        String loggedInEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        UserDetailsResponse userDetailsResponse = userService.updateProfile(updateProfileRequest, loggedInEmail);
         return ResponseUtil.ok(userDetailsResponse);
+    }
+
+    @PostMapping("/reset-password")
+    @Operation(summary = "Reset Password")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<String> resetPassword(@Valid @RequestBody PasswordResetRequest passwordResetRequest) {
+        // Get email from authenticated JWT user
+        String loggedInEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        userService.resetPassword(loggedInEmail, passwordResetRequest);
+        return ResponseEntity.ok(AuthConstants.PASSWORD_CHANGED_SUCCESSFULLY);
     }
 
 }

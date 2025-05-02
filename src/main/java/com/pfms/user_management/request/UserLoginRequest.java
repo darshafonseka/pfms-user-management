@@ -19,12 +19,12 @@ public class UserLoginRequest {
     @Column(name = "email", unique = true, nullable = false)
     @Email(message = "Enter valid email")
     @NotEmpty(message = "Email address required")
-    @Schema(description = "Email address", required = true, example = "pfms@example.com")
+    @Schema(description = "Email address",  example = "pfms@example.com")
     private String email;
 
     @Column(name = "password", nullable = false)
     @NotEmpty(message = "Password required")
-    @Schema(description = "Password", required = true, example = "password")
+    @Schema(description = "Password", example = "password")
     @Size(min = 8, message = "Password should be at least 8 characters")
     private String password;
 }
