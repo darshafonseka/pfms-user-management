@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         pfmsUserRepo.save(user);
         return UserDetailsResponse.builder()
-                .id(user.getId())
+                .userId(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .role(user.getRole().toString())
@@ -73,7 +73,7 @@ public class UserServiceImpl implements UserService {
         user.setUpdatedAt(LocalDateTime.now());
         pfmsUserRepo.save(user);
         return UserDetailsResponse.builder()
-                .id(user.getId())
+                .userId(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .role(user.getRole().toString())
@@ -109,7 +109,7 @@ public class UserServiceImpl implements UserService {
             throw new ApplicationException(UserManagementError.INCORRECT_PASSWORD);
         }
         return UserDetailsResponse.builder()
-                .id(user.getId())
+                .userId(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .role(user.getRole().toString())

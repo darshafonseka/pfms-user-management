@@ -29,7 +29,7 @@ public class AdminServiceImpl implements AdminService {
         }
         return users.stream().map(user -> {
             UserDetailsResponse userDetailsResponse = new UserDetailsResponse();
-            userDetailsResponse.setId(user.getId());
+            userDetailsResponse.setUserId(user.getId());
             userDetailsResponse.setUsername(user.getUsername());
             userDetailsResponse.setEmail(user.getEmail());
             userDetailsResponse.setRole(user.getRole().name());
@@ -50,7 +50,7 @@ public class AdminServiceImpl implements AdminService {
         user.setStatus(UserStatus.valueOf(updateUserStatusRequest.getStatus()));
         pfmsUserRepo.save(user);
         return UserDetailsResponse.builder()
-                .id(user.getId())
+                .userId(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .role(user.getRole().toString())

@@ -78,7 +78,6 @@ public class UserController {
 
     @PostMapping("/login-validate")
     @Operation(summary = "Validate Token")
-    @PreAuthorize("hasRole('USER')")
     public UserDetailsResponse validateUser(@RequestBody UserLoginRequest loginRequest) {
         return userService.validateUser(loginRequest);
     }
