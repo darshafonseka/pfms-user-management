@@ -1,5 +1,7 @@
 package com.pfms.user_management.entity;
 
+import com.pfms.user_management.enums.Role;
+import com.pfms.user_management.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,7 +44,7 @@ public class User {
             nullable = false,
             columnDefinition = "ENUM('ACTIVE', 'INACTIVE') DEFAULT 'ACTIVE'"
     )
-    private Status status = Status.ACTIVE; // default value
+    private UserStatus status = UserStatus.ACTIVE; // default value
 
 
     @Column(name = "created_at", updatable = false)
@@ -62,11 +64,4 @@ public class User {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public enum Role {
-        USER, ADMIN
-    }
-
-    public enum Status {
-        ACTIVE, INACTIVE
-    }
 }

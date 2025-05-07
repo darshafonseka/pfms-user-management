@@ -2,6 +2,7 @@ package com.pfms.user_management.service.implementation;
 
 import com.pfms.user_management.entity.User;
 import com.pfms.user_management.enums.UserManagementError;
+import com.pfms.user_management.enums.UserStatus;
 import com.pfms.user_management.exception.ApplicationException;
 import com.pfms.user_management.repository.PFMSUserRepo;
 import com.pfms.user_management.request.UpdateUserStatusRequest;
@@ -46,7 +47,7 @@ public class AdminServiceImpl implements AdminService {
             throw new ApplicationException(UserManagementError.USER_STATUS_ALREADY_UPDATED);
         }
 
-        user.setStatus(User.Status.valueOf(updateUserStatusRequest.getStatus()));
+        user.setStatus(UserStatus.valueOf(updateUserStatusRequest.getStatus()));
         pfmsUserRepo.save(user);
         return UserDetailsResponse.builder()
                 .id(user.getId())

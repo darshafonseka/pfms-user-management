@@ -1,8 +1,7 @@
-package com.pfms.user_management.config;
+package com.pfms.user_management.filter;
 
-
-import com.pfms.user_management.service.JwtService;
 import com.pfms.user_management.service.PFMSUserDetailsService;
+import com.pfms.user_management.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,14 +18,13 @@ import java.io.IOException;
 import java.util.List;
 
 @Component
-public class JwtFilter extends OncePerRequestFilter {
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtService jwtService;
-
+    private final JwtUtil jwtUtil;
     private final PFMSUserDetailsService pfmsUserDetailsService;
 
-    public JwtFilter(JwtService jwtService, PFMSUserDetailsService pfmsUserDetailsService) {
-        this.jwtService = jwtService;
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, PFMSUserDetailsService pfmsUserDetailsService) {
+        this.jwtUtil = jwtUtil;
         this.pfmsUserDetailsService = pfmsUserDetailsService;
     }
 
@@ -38,12 +36,12 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if(authHeader!=null && authHeader.startsWith("Bearer ")){
             token=authHeader.substring(7);
-            username=jwtService.extractUsername(token);
+            username=jwtUtil.extractUsername(token);
         }
         if(username!=null && SecurityContextHolder.getContext().getAuthentication()==null){
             UserDetails userDetails = pfmsUserDetailsService.loadUserByUsername(username);
-            if (jwtService.validateToken(token, userDetails)) {
-                String role = jwtService.extractClaim(token, claims -> claims.get("role").toString());
+            if (jwtUtil.validateToken(token, userDetails)) {
+                String role = jwtUtil.extractClaim(token, claims -> claims.get("role").toString());
                 List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
 
                 UsernamePasswordAuthenticationToken authToken =
@@ -56,5 +54,6 @@ public class JwtFilter extends OncePerRequestFilter {
         }
         filterChain.doFilter(request, response);
     }
-}
 
+
+}

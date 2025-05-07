@@ -1,6 +1,6 @@
 package com.pfms.user_management.controller;
 
-import com.pfms.user_management.model.UserManagementApiResponse;
+import com.pfms.user_management.model.ApiResponse;
 import com.pfms.user_management.request.UpdateUserStatusRequest;
 import com.pfms.user_management.response.UserDetailsResponse;
 import com.pfms.user_management.service.AdminService;
@@ -28,14 +28,14 @@ public class AdminController {
     @GetMapping("/users")
     @Operation(summary = "Get All Users")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserManagementApiResponse<List<UserDetailsResponse>>> getAllUsers() {
+    public ResponseEntity<ApiResponse<List<UserDetailsResponse>>> getAllUsers() {
         List<UserDetailsResponse> userDetails = adminService.getAllUsers();
         return ResponseUtil.ok(userDetails);
     }
     @PutMapping("/user/status")
     @Operation(summary = "Update User Status")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserManagementApiResponse<UserDetailsResponse>> updateUserStatus( @Valid @RequestBody UpdateUserStatusRequest updateUserStatusRequest) {
+    public ResponseEntity<ApiResponse<UserDetailsResponse>> updateUserStatus(@Valid @RequestBody UpdateUserStatusRequest updateUserStatusRequest) {
         UserDetailsResponse userDetailsResponse = adminService.updateUserStatus(updateUserStatusRequest);
         return ResponseUtil.ok(userDetailsResponse);
     }

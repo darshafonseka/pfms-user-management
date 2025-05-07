@@ -1,6 +1,8 @@
 package com.pfms.user_management.service.implementation;
 
+import com.pfms.user_management.enums.Role;
 import com.pfms.user_management.enums.UserManagementError;
+import com.pfms.user_management.enums.UserStatus;
 import com.pfms.user_management.exception.ApplicationException;
 import com.pfms.user_management.request.PasswordResetRequest;
 import com.pfms.user_management.request.UserLoginRequest;
@@ -9,7 +11,6 @@ import com.pfms.user_management.request.UpdateUserProfileRequest;
 import com.pfms.user_management.entity.User;
 import com.pfms.user_management.repository.PFMSUserRepo;
 import com.pfms.user_management.response.UserDetailsResponse;
-import com.pfms.user_management.service.JwtService;
 import com.pfms.user_management.service.UserService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,23 +28,20 @@ public class UserServiceImpl implements UserService {
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);
 
-    private final JwtService jwtService;
-
-    public UserServiceImpl(PFMSUserRepo pfmsUserRepo, JwtService jwtService) {
+    public UserServiceImpl(PFMSUserRepo pfmsUserRepo) {
         this.pfmsUserRepo = pfmsUserRepo;
-        this.jwtService = jwtService;
     }
 
     public UserDetailsResponse registerUser(UserRegisterRequest registerRequestDto) throws ApplicationException {
         if (pfmsUserRepo.findByEmail(registerRequestDto.getEmail()) != null) {
-            throw new ApplicationException(UserManagementError.USER_EXIST);
+            throw new ApplicationException(UserManagementError.USER_EXISTS);
         }
         var user = User.builder()
                 .email(registerRequestDto.getEmail())
                 .username(registerRequestDto.getUsername())
                 .password(registerRequestDto.getPassword())
-                .status(User.Status.ACTIVE)
-                .role(User.Role.USER)
+                .status(UserStatus.ACTIVE)
+                .role(Role.USER)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
@@ -57,28 +55,6 @@ public class UserServiceImpl implements UserService {
                 .status(user.getStatus().toString())
                 .build();
     }
-
-    @Override
-    public String loginUser(UserLoginRequest loginRequest) {
-        User user = pfmsUserRepo.findByEmail(loginRequest.getEmail());
-        if (user == null) {
-            throw new ApplicationException(UserManagementError.USER_NOT_FOUND);
-        }
-        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            throw new ApplicationException(UserManagementError.INCORRECT_PASSWORD);
-        }
-        return jwtService.generateToken(loginRequest.getEmail(), String.valueOf(user.getRole()));
-    }
-
-    @Override
-    public User getUserDetailsByEmail(String email) throws ApplicationException {
-        User user = pfmsUserRepo.findByEmail(email);
-        if (user == null) {
-            throw new ApplicationException(UserManagementError.USER_NOT_FOUND);
-        }
-        return user;
-    }
-
 
     @Override
     public UserDetailsResponse updateProfile(UpdateUserProfileRequest updateProfileRequestDto, String loggedInEmail) throws ApplicationException {
@@ -112,17 +88,32 @@ public class UserServiceImpl implements UserService {
         if(user == null) {
             throw new ApplicationException(UserManagementError.USER_NOT_FOUND);
         }
-
-        if (passwordEncoder.matches(passwordResetRequest.getNewPassword(), user.getPassword())) {
-            throw new ApplicationException(UserManagementError.NEW_PASSWORD_SAME_AS_CURRENT_PASSWORD);
-        }
-
         if (!passwordEncoder.matches(passwordResetRequest.getCurrentPassword(), user.getPassword())) {
             throw new ApplicationException(UserManagementError.CURRENT_PASSWORD_INCORRECT);
         }
-
+        if (passwordEncoder.matches(passwordResetRequest.getNewPassword(), user.getPassword())) {
+            throw new ApplicationException(UserManagementError.NEW_PASSWORD_SAME_AS_CURRENT_PASSWORD);
+        }
         user.setPassword(passwordEncoder.encode(passwordResetRequest.getNewPassword()));
         pfmsUserRepo.save(user);
 
+    }
+
+    @Override
+    public UserDetailsResponse validateUser(UserLoginRequest loginRequest) {
+        User user = pfmsUserRepo.findByEmail(loginRequest.getEmail());
+        if (user == null) {
+            throw new ApplicationException(UserManagementError.USER_NOT_FOUND);
+        }
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+            throw new ApplicationException(UserManagementError.INCORRECT_PASSWORD);
+        }
+        return UserDetailsResponse.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .role(user.getRole().toString())
+                .status(user.getStatus().toString())
+                .build();
     }
 }

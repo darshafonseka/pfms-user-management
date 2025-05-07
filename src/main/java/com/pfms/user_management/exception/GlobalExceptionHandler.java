@@ -2,7 +2,7 @@ package com.pfms.user_management.exception;
 
 import com.pfms.user_management.enums.ErrorType;
 import com.pfms.user_management.enums.Severity;
-import com.pfms.user_management.model.UserManagementApiResponse;
+import com.pfms.user_management.model.ApiResponse;
 import com.pfms.user_management.util.ResponseUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +21,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<UserManagementApiResponse<GlobalExceptionResponse>> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception){
+    public ResponseEntity<ApiResponse<GlobalExceptionResponse>> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception){
 
         List<ValidationError> details = new ArrayList<>();
 
@@ -39,7 +39,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ApplicationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<UserManagementApiResponse<GlobalExceptionResponse>> handleApplicationException(ApplicationException exception){
+    public ResponseEntity<ApiResponse<GlobalExceptionResponse>> handleApplicationException(ApplicationException exception){
 
         GlobalExceptionResponse response = new GlobalExceptionResponse();
         response.setErrorType(ErrorType.APPLICATION_ERROR.name());
@@ -50,7 +50,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<UserManagementApiResponse<GlobalExceptionResponse>> handleHttpMessageNotReadable(HttpMessageNotReadableException exception) {
+    public ResponseEntity<ApiResponse<GlobalExceptionResponse>> handleHttpMessageNotReadable(HttpMessageNotReadableException exception) {
         List<ValidationError> details = new ArrayList<>();
 
         Throwable rootCause = exception.getRootCause();

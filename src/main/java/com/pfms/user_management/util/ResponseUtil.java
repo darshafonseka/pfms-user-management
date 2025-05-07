@@ -1,7 +1,7 @@
 package com.pfms.user_management.util;
 
 
-import com.pfms.user_management.model.UserManagementApiResponse;
+import com.pfms.user_management.model.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -9,8 +9,8 @@ public class ResponseUtil {
 
     private ResponseUtil() {}
 
-    public static <T> ResponseEntity<UserManagementApiResponse<T>> ok(T data) {
-        UserManagementApiResponse<T> response = new UserManagementApiResponse<>();
+    public static <T> ResponseEntity<ApiResponse<T>> ok(T data) {
+        ApiResponse<T> response = new ApiResponse<>();
         response.setStatus(HttpStatus.OK.value());
         response.setCode("000");
         response.setData(data);
@@ -18,8 +18,8 @@ public class ResponseUtil {
         return ResponseEntity.ok(response);
     }
 
-    public static <T> ResponseEntity<UserManagementApiResponse<T>> accepted(T data) {
-        UserManagementApiResponse<T> response = new UserManagementApiResponse<>();
+    public static <T> ResponseEntity<ApiResponse<T>> accepted(T data) {
+        ApiResponse<T> response = new ApiResponse<>();
         response.setStatus(HttpStatus.ACCEPTED.value());
         response.setCode("000");
         response.setData(data);
@@ -27,8 +27,8 @@ public class ResponseUtil {
         return ResponseEntity.accepted().body(response);
     }
 
-    public static <T> ResponseEntity<UserManagementApiResponse<T>> badRequest(T data) {
-        UserManagementApiResponse<T> response = new UserManagementApiResponse<>();
+    public static <T> ResponseEntity<ApiResponse<T>> badRequest(T data) {
+        ApiResponse<T> response = new ApiResponse<>();
         response.setStatus(HttpStatus.BAD_REQUEST.value());
         response.setCode("999");
         response.setData(data);
@@ -36,12 +36,12 @@ public class ResponseUtil {
         return ResponseEntity.badRequest().body(response);
     }
 
-    public static <T> ResponseEntity<UserManagementApiResponse<T>> noContent() {
+    public static <T> ResponseEntity<ApiResponse<T>> noContent() {
         return ResponseEntity.noContent().build();
     }
 
-    public static <T> ResponseEntity<UserManagementApiResponse<T>> internalServerError(String s) {
-        UserManagementApiResponse<T> response = new UserManagementApiResponse<>();
+    public static <T> ResponseEntity<ApiResponse<T>> internalServerError(String s) {
+        ApiResponse<T> response = new ApiResponse<>();
         response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         response.setCode("999");
         response.setData(null);
@@ -49,8 +49,8 @@ public class ResponseUtil {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
-    public static <T> ResponseEntity<UserManagementApiResponse<T>> badGateway(T data) {
-        UserManagementApiResponse<T> response = new UserManagementApiResponse<>();
+    public static <T> ResponseEntity<ApiResponse<T>> badGateway(T data) {
+        ApiResponse<T> response = new ApiResponse<>();
         response.setStatus(HttpStatus.BAD_GATEWAY.value());
         response.setCode("999");
         response.setData(data);

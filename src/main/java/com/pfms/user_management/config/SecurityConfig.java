@@ -1,5 +1,6 @@
 package com.pfms.user_management.config;
 
+import com.pfms.user_management.filter.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,15 +26,15 @@ public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
 
-    private final JwtFilter jwtFilter;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     private final AuthenticationEntryPoint customAuthenticationEntryPoint;
 
     private final AccessDeniedHandler customAccessDeniedHandler;
 
-    public SecurityConfig(UserDetailsService userDetailsService, JwtFilter jwtFilter, AuthenticationEntryPoint customAuthenticationEntryPoint, AccessDeniedHandler customAccessDeniedHandler) {
+    public SecurityConfig(UserDetailsService userDetailsService, JwtAuthenticationFilter jwtAuthenticationFilter, AuthenticationEntryPoint customAuthenticationEntryPoint, AccessDeniedHandler customAccessDeniedHandler) {
         this.userDetailsService = userDetailsService;
-        this.jwtFilter = jwtFilter;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
         this.customAccessDeniedHandler = customAccessDeniedHandler;
     }
@@ -49,12 +50,12 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .authorizeRequests(auth -> auth
-                        .requestMatchers("api/user/register", "api/user/login", "api/user/validate", "/swagger-ui/**", "/v3/api-docs/**")
+                        .requestMatchers("api/user/register", "api/user/login-validate", "/swagger-ui/**", "/v3/api-docs/**")
                         .permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint(customAuthenticationEntryPoint) // Handle missing authorization headers
                         .accessDeniedHandler(customAccessDeniedHandler)); // Handle access denied scenarios

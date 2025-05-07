@@ -12,7 +12,7 @@ import lombok.*;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @ToString
 @Builder
-public class UserManagementApiResponse<T> {
+public class ApiResponse<T> {
 
     private int status;
     private String code;
